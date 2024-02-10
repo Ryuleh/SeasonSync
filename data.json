@@ -1,0 +1,33 @@
+{
+  "events": [
+    {
+      "name": "Event Name 1",
+      "description": "Description of Event 1",
+      "start_date": "YYYY-MM-DD",
+      "end_date": "YYYY-MM-DD",
+      "location": {
+        "name": "Location Name 1",
+        "latitude": 123.456,
+        "longitude": 789.012
+      },
+      "url": "URL to Eventbrite Page 1",
+      "city": "City Name 1",
+      "country": "Country Name 1"
+    },
+    {
+      "name": "Event Name 2",
+      "description": "Description of Event 2",
+      "start_date": "YYYY-MM-DD",
+      "end_date": "YYYY-MM-DD",
+      "location": {
+        "name": "Location Name 2",
+        "latitude": 123.456,
+        "longitude": 789.012
+      },
+      "url": "URL to Eventbrite Page 2",
+      "city": "City Name 2",
+      "country": "Country Name 2"
+    }
+  
+  ]
+}
