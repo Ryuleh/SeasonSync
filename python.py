@@ -1,18 +1,36 @@
-from flask import Flask, jsonify, request
-from sqalchemy import create_engine, Column, Integer, String
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from flask import Flask, render_template
 
 app = Flask(__name__)
 
-def get_events():
-  return jsonify({'events':events})
+# Sample data for seasonal events
+seasonal_events = [
+    {
+        "name": "Spring Sale",
+        "date": "March 20 - April 20",
+        "description": "Get ready for spring with amazing discounts!",
+    },
+    {
+        "name": "Summer Festival",
+        "date": "June 21 - September 22",
+        "description": "Join us for a summer celebration with live music, food, and activities!",
+    },
+    {
+        "name": "Fall Harvest",
+        "date": "September 23 - November 21",
+        "description": "Celebrate the harvest season with farm-fresh produce and autumn-themed events.",
+    },
+    {
+        "name": "Winter Wonderland",
+        "date": "December 21 - March 19",
+        "description": "Experience the magic of winter with festive decorations, ice skating, and holiday shopping.",
+    },
+]
 
-@app.route('/events', methods=['POST'])
-def create_event():
-  return jsonify({'message': 'Event created successfully'})
 
-if __name__ == '__main__':
-  app.run(debug=True)
-  
-  app.run()
+@app.route("/")
+def home():
+    return render_template("index.html", seasonal_events=seasonal_events)
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
