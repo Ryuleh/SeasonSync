@@ -1,9 +1,7 @@
 from flask import Flask, render_template, request
 import requests
-import json
 
 app = Flask(__name__)
-
 
 def get_events(city):
     eventbrite_token = "LCRLH2GHRVPMF5YIR2P3"
@@ -13,13 +11,12 @@ def get_events(city):
     events = data.get("events", [])
     return events
 
-
 def get_location_details(city):
     opencage_key = "3a2e2407966344f4bd35adc2253b99da"
     url = f"https://api.opencagedata.com/geocode/v1/json?q={city}&key={opencage_key}"
     response = requests.get(url)
     data = response.json()
-    if data["results"]:
+    if data.get("results"):
         return (
             data["results"][0]["components"]["city"],
             data["results"][0]["components"]["country"],
@@ -27,15 +24,12 @@ def get_location_details(city):
     else:
         return None, None
 
-
 @app.route("/")
 def index():
     return render_template("index.html")
 
-
 @app.route("/events", methods=["GET", "POST"])
 def events():
-
     if request.method == "POST":
         city = request.form["city"]
         city_name, country_name = get_location_details(city)
@@ -60,7 +54,7 @@ def events():
                     }
                     events_list.append(event_details)
                 return render_template(
-                    "events",
+                    "events.html",
                     events=events_list,
                     city=city_name,
                     country=country_name,
@@ -69,3 +63,12 @@ def events():
                 return render_template(
                     "error.html", message="No events found for this city."
                 )
+        else:
+            return render_template(
+                "error.html", message="City not found. Please enter a valid city."
+            )
+    else:
+        return render_template("index.html")
+
+if __name__ == "__main__":
+    app.run(debug=True)

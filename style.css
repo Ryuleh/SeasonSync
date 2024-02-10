@@ -9,6 +9,37 @@ body {
   background-color: #f0f0f0;
   font-family: Arial, sans-serif;
 }
+#spring
+{
+  color: green
+}
+#summer
+{
+  color: yellow;
+}
+#fall
+{
+  color: orange;;
+}
+#winter
+{
+  color: blue;
+}
+#find
+{
+  text-align: center;
+
+}
+h2
+{
+  border-style: double;
+}
+#title
+{
+  color: black;
+  text-align: center;
+}
+
 
 /* Header styles */
 header {

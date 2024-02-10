@@ -1,59 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Event Marketplace</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="/">Event Marketplace</a>
-        <ul class="navbar-nav mr-auto">
-            <li class="nav-item">
-                <a class="nav-link" href="/events?season=spring">Spring</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/events?season=summer">Summer</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/events?season=fall">Fall</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/events?season=winter">Winter</a>
-            </li>
-        </ul>
-    </nav>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- Seasons as headers -->
+    <header>
+      <h2 id="spring">Spring</h2>
+      <h2 id="summer">Summer</h2>
+      <h2 id="fall">Fall</h2>
+      <h2 id="winter">Winter</h2>
+    </header>
 
+    <!-- City input form -->
     <div class="container mt-5">
-        <h1>Welcome to SeasonSync Marketplace!</h1>
-        <p><mark>🌻☀️🍁❄️Find events near you based on season.🌻☀️🍁❄️</mark></p>
-        <form action="/events" method="POST">
-            <div class="form-group">
-                <label for="city">Enter your city:</label>
-                <input type="text" class="form-control" id="city" name="city" list="cityList" required>
-                <datalist id="cityList">
-                    <!-- City suggestions will be populated here -->
-                </datalist>
-            </div>
-            <button type="submit" class="btn btn-primary">Search</button>
-        </form>
+      <h1 id="title">Welcome to SeasonSync Marketplace!</h1>
+      <p id="find">
+        <mark>🌻☀️🍁❄️Find events near you based on season🌻☀️🍁❄️</mark>
+      </p>
+      <form action="/events" method="POST">
+        <div class="form-group">
+          <label for="city">Enter your city:</label>
+          <input
+            type="text"
+            class="form-control"
+            id="city"
+            name="city"
+            required
+          />
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </form>
+    </div>
+
+    <!-- Filters -->
+    <div class="container mt-5">
+      <h3>Filters</h3>
+      <form>
+        <div class="form-group">
+          <label for="filterType">Event Type:</label>
+          <select class="form-control" id="filterType">
+            <option value="all">All</option>
+            <option value="paid">Paid</option>
+            <option value="free">Free</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="filterDistance">Distance Traveled:</label>
+          <input type="text" class="form-control" id="filterDistance" />
+        </div>
+        <div class="form-group">
+          <label for="filterTime">Time Event Lasts For:</label>
+          <input type="text" class="form-control" id="filterTime" />
+        </div>
+        <button type="button" class="btn btn-primary">Apply Filters</button>
+      </form>
     </div>
 
     <script>
-        // JavaScript to fetch city suggestions from a JSON file or an API
-        // Example:
-        fetch('cities.json')
-            .then(response => response.json())
-            .then(data => {
-                const cityList = document.getElementById('cityList');
-                data.cities.forEach(city => {
-                    const option = document.createElement('option');
-                    option.value = city;
-                    cityList.appendChild(option);
-                });
-            });
+      // Redirect to events page after submitting city
+      document
+        .querySelector("form")
+        .addEventListener("submit", function (event) {
+          event.preventDefault(); // Prevent form submission
+          const city = document.getElementById("city").value;
+          window.location.replace(`/events?city=${city}`);
+        });
     </script>
-</body>
+  </body>
 </html>
