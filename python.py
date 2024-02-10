@@ -1,8 +1,9 @@
-from flask import Flask, render_template, request
-import requests
+from flask import Flask, render_template, request, jsonify
 import json
+import requests
 
 app = Flask(__name__)
+
 
 # Function to get events from Eventbrite API
 def get_events(city):
@@ -14,6 +15,7 @@ def get_events(city):
     events = data.get("events", [])
     return events
 
+
 # Function to get location details from OpenCage API
 def get_location_details(city):
     # Use your OpenCage API key here
@@ -21,11 +23,16 @@ def get_location_details(city):
     url = f"https://api.opencagedata.com/geocode/v1/json?q={city}&key={opencage_key}"
     response = requests.get(url)
     data = response.json()
-    return data["results"][0]["components"]["city"], data["results"][0]["components"]["country"]
+    return (
+        data["results"][0]["components"]["city"],
+        data["results"][0]["components"]["country"],
+    )
+
 
 @app.route("/")
 def index():
     return render_template("index.html")
+
 
 @app.route("/events", methods=["GET", "POST"])
 def events():
@@ -43,18 +50,29 @@ def events():
                 "location": {
                     "name": event["venue"]["name"],
                     "latitude": event["venue"]["latitude"],
-                    "longitude": event["venue"]["longitude"]
+                    "longitude": event["venue"]["longitude"],
                 },
                 "url": event["url"],
                 "city": city_name,
-                "country": country_name
+                "country": country_name,
             }
             events_list.append(event_details)
         with open("data.json", "w") as f:
             json.dump({"events": events_list}, f, indent=2)
-        return render_template("events.html", events=events_list, city=city_name, country=country_name)
+        return render_template(
+            "events.html", events=events_list, city=city_name, country=country_name
+        )
     else:
         return render_template("events.html")
+
+
+@app.route("/chat", methods=["POST"])
+def chat():
+    if request.method == "POST":
+        message = request.form["message"]
+        response = get_chatbot_response(message)
+        return jsonify({"response": str(response)})
+
 
 if __name__ == "__main__":
     app.run(debug=True)
