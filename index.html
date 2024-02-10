@@ -4,11 +4,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SeasonSync</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header>
 
-    <form action="/search method"
+    <form action="/search method" method="post">
+      <input type="text" name="query" placeholder="Search">
+      <input type="submit" value="Search">
+    </form>
+    {% for event in events $}
+    <h2>{{event.name.text}}</h2>
+    {{event.description.text}}</p>
+  {% endfor %}
+
   </header>
 </body>
 </html>
