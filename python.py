@@ -1,52 +1,47 @@
 from flask import Flask, render_template, request
 import requests
-import os
 
 app = Flask(__name__)
 
-# Sample data for seasonal events
-seasonal_events = [
-    {
-        "name": "Spring Sale",
-        "date": "March 20 - April 20",
-        "description": "Get ready for spring with amazing discounts!",
-    },
-    {
-        "name": "Summer Festival",
-        "date": "June 21 - September 22",
-        "description": "Join us for a summer celebration with live music, food, and activities!",
-    },
-    {
-        "name": "Fall Harvest",
-        "date": "September 23 - November 21",
-        "description": "Celebrate the harvest season with farm-fresh produce and autumn-themed events.",
-    },
-    {
-        "name": "Winter Wonderland",
-        "date": "December 21 - March 19",
-        "description": "Experience the magic of winter with festive decorations, ice skating, and holiday shopping.",
-    },
-]
+
+# Function to get events from Eventbrite API
+def get_events(city):
+    # Use your Eventbrite API key here
+    eventbrite_token = (
+        "https://www.eventbriteapi.com/v3/users/me/?token=LCRLH2GHRVPMF5YIR2P3"
+    )
+    url = f"https://www.eventbriteapi.com/v3/events/search/?q=&location.address={city}&token={eventbrite_token}"
+    response = requests.get(url)
+    data = response.json()
+    events = data.get("events", [])
+    return events
+
+
+# Function to get location details from OpenCage API
+def get_location_details(city):
+    # Use your OpenCage API key here
+    opencage_key = "3a2e2407966344f4bd35adc2253b99da"
+    url = f"https://api.opencagedata.com/geocode/v1/json?q={city}&key={opencage_key}"
+    response = requests.get(url)
+    data = response.json()
+    return data["results"][0]["geometry"]
+
 
 @app.route("/")
-def home():
-    return render_template("index.html", seasonal_events=seasonal_events)
+def index():
+    return render_template("index.html")
 
 
-@app.route('/search', methods=['POST'])
-def search():
-    query = request.form.get('query')
+@app.route("/events", methods=["GET", "POST"])
+def events():
+    if request.method == "POST":
+        city = request.form["city"]
+        events = get_events(city)
+        location_details = get_location_details(city)
+        return render_template("events.html", events=events, location=location_details)
+    else:
+        return render_template("events.html")
 
-    # Get the geographical coordinates of the city from the OpenCage API
-    response = requests.get('https://api.opencagedata.com/geocode/v1/json', params={'q': query, 'key': '3a2e2407966344f4bd35adc2253b99da'})
-    data = response.json()
-    coordinates = data['results'][0]['geometry']
-
-    # Use the coordinates to search for events in the Eventbrite API
-    response = requests.get('https://www.eventbriteapi.com/v3/events/search/', params={'location.latitude': coordinates['lat'], 'location.longitude': coordinates['lng'], 'token': 'LCRLH2GHRVPMF5YIR2P3'})
-    events = response.json()
-
-    return render_template('search_results.html', events=events['events'])
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=80)
+    app.run(debug=True)
