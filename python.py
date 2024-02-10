@@ -1,8 +1,9 @@
-from flask import Flask, render_template, request
+from flask import Flask, jsonify, request
 import requests
 
 app = Flask(__name__)
 
+# Define your function to get events from Eventbrite API
 def get_events(city):
     eventbrite_token = "LCRLH2GHRVPMF5YIR2P3"
     url = f"https://www.eventbriteapi.com/v3/events/search/?q=&location.address={city}&token={eventbrite_token}"
@@ -11,64 +12,21 @@ def get_events(city):
     events = data.get("events", [])
     return events
 
-def get_location_details(city):
-    opencage_key = "3a2e2407966344f4bd35adc2253b99da"
-    url = f"https://api.opencagedata.com/geocode/v1/json?q={city}&key={opencage_key}"
-    response = requests.get(url)
-    data = response.json()
-    if data.get("results"):
-        return (
-            data["results"][0]["components"]["city"],
-            data["results"][0]["components"]["country"],
-        )
-    else:
-        return None, None
+# Define an API route to get events by city
+@app.route("/api/events", methods=["GET"])
+def api_events():
+    # Get city from query parameters
+    city = request.args.get("city")
 
-@app.route("/")
-def index():
-    return render_template("index.html")
+    # Check if city parameter is provided
+    if not city:
+        return jsonify({"error": "City parameter is required"}), 400
 
-@app.route("/events", methods=["GET", "POST"])
-def events():
-    if request.method == "POST":
-        city = request.form["city"]
-        city_name, country_name = get_location_details(city)
-        if city_name:
-            events_data = get_events(city)
-            if events_data:
-                events_list = []
-                for event in events_data:
-                    event_details = {
-                        "name": event["name"]["text"],
-                        "description": event["description"]["text"],
-                        "start_date": event["start"]["local"],
-                        "end_date": event["end"]["local"],
-                        "location": {
-                            "name": event["venue"]["name"],
-                            "latitude": event["venue"]["latitude"],
-                            "longitude": event["venue"]["longitude"],
-                        },
-                        "url": event["url"],
-                        "city": city_name,
-                        "country": country_name,
-                    }
-                    events_list.append(event_details)
-                return render_template(
-                    "events.html",
-                    events=events_list,
-                    city=city_name,
-                    country=country_name,
-                )
-            else:
-                return render_template(
-                    "error.html", message="No events found for this city."
-                )
-        else:
-            return render_template(
-                "error.html", message="City not found. Please enter a valid city."
-            )
-    else:
-        return render_template("index.html")
+    # Get events for the specified city
+    events = get_events(city)
+
+    # Return the events as JSON response
+    return jsonify(events)
 
 if __name__ == "__main__":
     app.run(debug=True)
