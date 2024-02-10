@@ -32,7 +32,6 @@ seasonal_events = [
 def home():
     return render_template("index.html", seasonal_events=seasonal_events)
 
-import requests
 
 @app.route('/search', methods=['POST'])
 def search():
