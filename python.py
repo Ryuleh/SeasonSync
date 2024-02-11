@@ -1,74 +1,90 @@
-from flask import Flask, render_template, request
+from flask import Flask, request, jsonify
 import requests
-import json
+import datetime
 
 app = Flask(__name__)
 
+# Eventbrite API key
+EVENTBRITE_API_KEY = "LCRLH2GHRVPMF5YIR2P3"
 
-def get_events(city):
-    eventbrite_token = "LCRLH2GHRVPMF5YIR2P3"
-    url = f"https://www.eventbriteapi.com/v3/events/search/?q=&location.address={city}&token={eventbrite_token}"
-    response = requests.get(url)
-    data = response.json()
-    events = data.get("events", [])
-    return events
+# OpenCage API key
+OPENCAGE_API_KEY = "3a2e2407966344f4bd35adc2253b99da"
 
 
-def get_location_details(city):
-    opencage_key = "3a2e2407966344f4bd35adc2253b99da"
-    url = f"https://api.opencagedata.com/geocode/v1/json?q={city}&key={opencage_key}"
+# Function to get current season based on month
+def get_season():
+    month = datetime.datetime.now().month
+    if month in [12, 1, 2]:
+        return "winter"
+    elif month in [3, 4, 5]:
+        return "spring"
+    elif month in [6, 7, 8]:
+        return "summer"
+    else:
+        return "fall"
+
+
+# Function to get latitude and longitude coordinates for a city using OpenCage API
+def get_coordinates(city):
+    url = (
+        f"https://api.opencagedata.com/geocode/v1/json?q={city}&key={OPENCAGE_API_KEY}"
+    )
     response = requests.get(url)
     data = response.json()
     if data["results"]:
-        return (
-            data["results"][0]["components"]["city"],
-            data["results"][0]["components"]["country"],
-        )
+        lat = data["results"][0]["geometry"]["lat"]
+        lng = data["results"][0]["geometry"]["lng"]
+        return lat, lng
     else:
         return None, None
 
 
-@app.route("/")
-def index():
-    return render_template("index.html")
+# Function to search for seasonal events using Eventbrite API
+def search_events(lat, lng, season):
+    url = "https://www.eventbriteapi.com/v3/events/search/"
+    params = {
+        "location.latitude": lat,
+        "location.longitude": lng,
+        "location.within": "10km",  # Search within 10km radius
+        "start_date.keyword": season,
+        "price": "free",  # Filter for free events
+        "date.keyword": "today",  # Filter for events happening today
+    }
+    headers = {"Authorization": f"Bearer {EVENTBRITE_API_KEY}"}
+    response = requests.get(url, params=params, headers=headers)
+    data = response.json()
+    events = []
+    if "events" in data:
+        for event in data["events"]:
+            event_details = {
+                "name": event["name"]["text"],
+                "start_time": event["start"]["local"],
+                "end_time": event["end"]["local"],
+                "url": event["url"],
+            }
+            events.append(event_details)
+    return events
 
 
-@app.route("/events", methods=["GET", "POST"])
-def events():
+@app.route("/", methods=["GET", "POST"])
+def home():
     if request.method == "POST":
         city = request.form["city"]
-        city_name, country_name = get_location_details(city)
-        if city_name:
-            events_data = get_events(city)
-            if events_data:
-                events_list = []
-                for event in events_data:
-                    event_details = {
-                        "name": event["name"]["text"],
-                        "description": event["description"]["text"],
-                        "start_date": event["start"]["local"],
-                        "end_date": event["end"]["local"],
-                        "location": {
-                            "name": event["venue"]["name"],
-                            "latitude": event["venue"]["latitude"],
-                            "longitude": event["venue"]["longitude"],
-                        },
-                        "url": event["url"],
-                        "city": city_name,
-                        "country": country_name,
-                    }
-                    events_list.append(event_details)
-                return render_template(
-                    "events.html",
-                    events=events_list,
-                    city=city_name,
-                    country=country_name,
-                )
-            else:
-                return render_template(
-                    "error.html", message="No events found for this city."
-                )
-    return render_template("index.html")
+        lat, lng = get_coordinates(city)
+        if lat and lng:
+            season = get_season()
+            events = search_events(lat, lng, season)
+            return jsonify({"events": events})
+        else:
+            return jsonify({"message": "City not found"}), 404
+    else:
+        return """
+            <form method="post">
+                <label for="city">Enter your city:</label><br>
+                <input type="text" id="city" name="city"><br>
+                <input type="submit" value="Submit">
+            </form>
+        """
 
 
 if __name__ == "__main__":
