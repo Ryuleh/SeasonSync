@@ -42,7 +42,10 @@
           <h3>{{ event.name }}</h3>
           <p><strong>Date:</strong> {{ event.date }}</p>
           <p><strong>Location:</strong> {{ event.location }}</p>
+          <!-- Add event description if available -->
+          {% if event.description %}
           <p>{{ event.description }}</p>
+          {% endif %}
         </div>
         {% endfor %}
       </div>
