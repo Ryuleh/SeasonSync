@@ -8,23 +8,39 @@
       rel="stylesheet"
       href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
     />
-    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='color.css') }}"
+    />
   </head>
   <body>
-    <!-- Seasons as headers -->
-    <header>
-      <h2 id="spring">Spring</h2>
-      <h2 id="summer">Summer</h2>
-      <h2 id="fall">Fall</h2>
-      <h2 id="winter">Winter</h2>
-    </header>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <a id="season" class="navbar-brand" href="/">SeasonSync</a>
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <a class="nav-link" id="spring" href="/events?season=spring"
+            >Spring</a
+          >
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="summer" href="/events?season=summer"
+            >Summer</a
+          >
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="fall" href="/events?season=fall">Fall</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="winter" href="/events?season=winter"
+            >Winter</a
+          >
+        </li>
+      </ul>
+    </nav>
 
-    <!-- City input form -->
     <div class="container mt-5">
-      <h1 id="title">Welcome to SeasonSync Marketplace!</h1>
-      <p id="find">
-        <mark>🌻☀️🍁❄️Find events near you based on season🌻☀️🍁❄️</mark>
-      </p>
+      <h1>Welcome to SeasonSync Marketplace!</h1>
+      <p><mark>🌻☀️🍁❄️Find events near you based on season.🌻☀️🍁❄️</mark></p>
       <form action="/events" method="POST">
         <div class="form-group">
           <label for="city">Enter your city:</label>
@@ -33,24 +49,45 @@
             class="form-control"
             id="city"
             name="city"
+            list="cityList"
             required
           />
+          <datalist id="cityList">
+            <!-- City suggestions will be populated here -->
+          </datalist>
         </div>
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="submit" class="btn btn-primary">Search</button>
       </form>
     </div>
 
-    <!-- No need for Filters section in this version -->
-
     <script>
-      // Redirect to events page after submitting city
-      document
-        .querySelector("form")
-        .addEventListener("submit", function (event) {
-          event.preventDefault(); // Prevent form submission
-          const city = document.getElementById("city").value;
-          window.location.replace(`/events?city=${city}`);
-        });
+      // JavaScript to fetch city suggestions from the OpenCage API
+      const cityInput = document.getElementById("city");
+      const cityList = document.getElementById("cityList");
+
+      cityInput.addEventListener("input", function () {
+        const inputValue = this.value.trim();
+        if (inputValue === "") {
+          cityList.innerHTML = "";
+          return;
+        }
+
+        fetch(
+          `https://api.opencagedata.com/geocode/v1/json?q=${inputValue}&key=3a2e2407966344f4bd35adc2253b99da`
+        )
+          .then((response) => response.json())
+          .then((data) => {
+            cityList.innerHTML = "";
+            data.results.forEach((result) => {
+              const option = document.createElement("option");
+              option.value = result.formatted;
+              cityList.appendChild(option);
+            });
+          })
+          .catch((error) => {
+            console.error("Error fetching city suggestions:", error);
+          });
+      });
     </script>
   </body>
 </html>

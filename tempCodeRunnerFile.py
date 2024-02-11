@@ -1,10 +1,10 @@
-import requests
 from flask import Flask, render_template, request
+import requests
 
 app = Flask(__name__)
 
 EVENTBRITE_API_KEY = "LCRLH2GHRVPMF5YIR2P3"
-OPENCAGE_API_KEY = "3a2e2407966344f4bd35adc2253b99da"
+OPENCAGE_API_KEY = "1a1e67bfc2e24b81adfa6a86b5e3104a"
 
 
 @app.route("/")
@@ -27,41 +27,36 @@ def get_coordinates(city):
     )
     response = requests.get(url)
     data = response.json()
-    try:
-        lat = data["results"][0]["geometry"]["lat"]
-        lng = data["results"][0]["geometry"]["lng"]
-        return lat, lng
-    except (IndexError, KeyError):
-        # Handle cases where city is not found or API response does not contain expected data
-        return None
+    lat = data["results"][0]["geometry"]["lat"]
+    lng = data["results"][0]["geometry"]["lng"]
+    return lat, lng
 
 
 def get_events_from_api(coordinates):
-    if coordinates is None:
-        return []  # Return empty list if coordinates are not available
     lat, lng = coordinates
     url = f"https://www.eventbriteapi.com/v3/events/search/?location.latitude={lat}&location.longitude={lng}&token={EVENTBRITE_API_KEY}"
     response = requests.get(url)
     data = response.json()
-    try:
-        events = [
-            {
-                "name": event["name"]["text"],
-                "description": event["description"]["text"],
-                "date": event["start"]["local"],
-                "location": event["venue"]["address"]["localized_address_display"],
-            }
-            for event in data.get("events", [])
-        ]
-        return events
-    except KeyError:
-        # Handle cases where API response does not contain events or there's an error
-        return []
+    events = []
+    for event in data["events"]:
+        event_info = {
+            "name": event["name"]["text"],
+            "description": event["description"]["text"],
+            "date": event["start"]["local"],
+            "location": event["venue"]["address"]["localized_address_display"],
+        }
+        events.append(event_info)
+    return events
 
 
 def apply_filters(events, form_data):
-    # Implement filtering logic here if needed
-    return events
+    filtered_events = []
+    for event in events:
+        # Check if event is within the desired season
+        # Check if event is free or paid
+        # Check if event duration matches user preference
+        filtered_events.append(event)  # Temporarily, no filtering applied
+    return filtered_events
 
 
 if __name__ == "__main__":

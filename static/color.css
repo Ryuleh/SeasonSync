@@ -1,0 +1,110 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: aquamarine;
+}
+
+.navbar {
+  background-color: #f8f9fa
+  
+}
+#spring
+{
+  color: green;
+  font-size: 70px;
+  text-align: center;
+  border-style: double;
+}
+#summer
+{
+  color: yellow;
+  font-size: 70px;
+  text-align: center;
+  border-style: double;
+}
+.nav-link
+{
+  background-color: cyan;
+}
+#fall
+{
+  color: orange;
+  font-size: 70px;
+  text-align: right;
+  border-style: double;
+}
+#season
+{
+  
+  font-size: 50px;
+  border-style: double;
+  text-align: center;
+}
+#winter
+{
+  color: blue;
+  font-size: 70px;
+  text-align: right;
+  border-style: double;
+}
+
+.navbar-brand {
+  font-weight: bold;
+  font-size: 1.5rem;
+}
+
+.navbar-nav .nav-link {
+  font-size: 1.2rem;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.container h1 {
+  margin-bottom: 20px;
+}
+
+.container p {
+  margin-bottom: 20px;
+  font-size: 1.2rem;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 10px;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+
+.mark {
+  background-color: #ffff66;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+/* Adjustments for smaller screens */
+@media (max-width: 576px) {
+  .navbar-brand {
+    font-size: 1.2rem;
+  }
+  .navbar-nav .nav-link {
+    font-size: 1rem;
+  }
+}
