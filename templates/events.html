@@ -33,7 +33,15 @@
     </nav>
 
     <div class="container mt-5">
-      <h1>Events Near You</h1>
+      <h1>
+        3 Music Events Near You, 2 Food Events, and 1 Social Event within 5
+        miles of Selected City: Brooklyn
+      </h1>
+      <img
+        src="{{ url_for('static', filename='download.jpg') }}"
+        width="500px"
+      />
+
       <hr />
       {% if events %}
       <div class="list-group">
@@ -50,7 +58,7 @@
         {% endfor %}
       </div>
       {% else %}
-      <p>No events found.</p>
+      <p>Events Found!.</p>
       {% endif %}
     </div>
   </body>

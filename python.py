@@ -12,27 +12,21 @@ GOOGLE_API_KEY = "AIzaSyDJ62yzREkfbxwiexRMlKeOpbsGz5dx56o"
 
 
 def scrape_eventful_events(city):
-    # Send HTTP request to Eventbrite's events page
     url = f"https://www.eventbrite.com/d/{city}/events/"
     response = requests.get(url)
 
     events = []
 
-    # Check if request was successful
     if response.status_code == 200:
-        # Parse HTML content
         soup = BeautifulSoup(response.content, "html.parser")
 
-        # Locate event elements using CSS selectors or XPath expressions
         event_elements = soup.find_all("div", class_="listItem")
 
-        # Extract event information
         for event_element in event_elements:
             event_name = event_element.find("span", class_="title").text.strip()
             event_date = event_element.find("span", class_="date").text.strip()
             event_location = event_element.find("span", class_="venue").text.strip()
 
-            # Store event data in a dictionary
             event_data = {
                 "name": event_name,
                 "date": event_date,

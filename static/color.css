@@ -61,22 +61,48 @@ body {
 
 /* Style for sun.jpg */
 .sun-image {
-  width: 180px; /* Adjust the width as needed */
+  width: 200px; /* Adjust the width as needed */
 }
 
 /* Style for snow.webp */
 .snow-image {
-  width: 220px; /* Adjust the width as needed */
+  width: 250px; /* Adjust the width as needed */
 }
 
 /* Style for spring.jpg */
 .spring-image {
-  width: 200px; /* Adjust the width as needed */
+  width: 220px; /* Adjust the width as needed */
 }
 
 /* Style for fall.jpg */
 .fall-image {
-  width: 220px; /* Adjust the width as needed */
+  width: 240px; /* Adjust the width as needed */
+}
+#box
+{
+  text-align: center;
+  color:black;
+
+  
+}
+#c{
+  font-size: large;
+  text-decoration: underline;
+}
+#p
+{
+  font-size: large;
+  text-decoration: underline;
+}
+#d
+{
+  font-size:large;
+  text-decoration: underline;
+}
+#s
+{
+  font-size: large;
+  text-decoration: underline;
 }
 
 .container p {
