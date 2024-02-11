@@ -4,7 +4,7 @@ import requests
 app = Flask(__name__)
 
 # Replace with your API keys
-EVENTBRITE_API_KEY = "LCRLH2GHRVPMF5YIR2P3"
+EVENTFUL_API_KEY = "050c2a5d6amsheb2e1a0208065bcp169beajsndc146500384b"
 GOOGLE_API_KEY = "AIzaSyDJ62yzREkfbxwiexRMlKeOpbsGz5dx56o"
 
 
@@ -35,7 +35,7 @@ def events():
     # Use Eventbrite API to get events near the location
     eventbrite_url = "https://www.eventbriteapi.com/v3/events/search/"
     params = {
-        "token": EVENTBRITE_API_KEY,
+        "token": EVENTFUL_API_KEY,
         "location.latitude": latitude,
         "location.longitude": longitude,
         "start_date.keyword": "this_spring,this_summer,this_fall,this_winter",
