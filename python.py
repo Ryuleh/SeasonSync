@@ -1,10 +1,11 @@
+from flask import Flask, render_template, request, jsonify
 import requests
-from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
+# Replace with your API keys
 EVENTBRITE_API_KEY = "LCRLH2GHRVPMF5YIR2P3"
-OPENCAGE_API_KEY = "3a2e2407966344f4bd35adc2253b99da"
+GOOGLE_API_KEY = "AIzaSyDJ62yzREkfbxwiexRMlKeOpbsGz5dx56o"
 
 
 @app.route("/")
@@ -13,55 +14,51 @@ def index():
 
 
 @app.route("/events", methods=["POST"])
-def get_events():
+def events():
     city = request.form["city"]
-    coordinates = get_coordinates(city)
-    events = get_events_from_api(coordinates)
-    filtered_events = apply_filters(events, request.form)
-    return render_template("events.html", events=filtered_events)
+
+    # Use Google Maps API to get latitude and longitude of the city
+    google_geocode_url = f"https://maps.googleapis.com/maps/api/geocode/json?address={city}&key={GOOGLE_API_KEY}"
+    google_geocode_response = requests.get(google_geocode_url).json()
+
+    # Check if there are any results returned from the Google Maps API
+    if (
+        google_geocode_response["status"] != "OK"
+        or len(google_geocode_response.get("results", [])) == 0
+    ):
+        return render_template("error.html", message="City not found")
+
+    location = google_geocode_response["results"][0]["geometry"]["location"]
+    latitude = location["lat"]
+    longitude = location["lng"]
+
+    # Use Eventbrite API to get events near the location
+    eventbrite_url = "https://www.eventbriteapi.com/v3/events/search/"
+    params = {
+        "token": EVENTBRITE_API_KEY,
+        "location.latitude": latitude,
+        "location.longitude": longitude,
+        "start_date.keyword": "this_spring,this_summer,this_fall,this_winter",
+        "price": request.form.get("price", ""),
+        "expand": "venue",  # Include venue information in the response
+    }
+    eventbrite_response = requests.get(eventbrite_url, params=params).json()
+    events = eventbrite_response.get("events", [])
+
+    return render_template("events.html", events=events)
 
 
-def get_coordinates(city):
-    url = (
-        f"https://api.opencagedata.com/geocode/v1/json?q={city}&key={OPENCAGE_API_KEY}"
-    )
-    response = requests.get(url)
-    data = response.json()
-    try:
-        lat = data["results"][0]["geometry"]["lat"]
-        lng = data["results"][0]["geometry"]["lng"]
-        return lat, lng
-    except (IndexError, KeyError):
-        # Handle cases where city is not found or API response does not contain expected data
-        return None
+@app.route("/autocomplete", methods=["GET"])
+def autocomplete():
+    query = request.args.get("query")
 
+    # Use Google Maps API to get auto-suggestions for city names
+    google_autocomplete_url = f"https://maps.googleapis.com/maps/api/place/autocomplete/json?input={query}&key={GOOGLE_API_KEY}"
+    google_autocomplete_response = requests.get(google_autocomplete_url).json()
+    predictions = google_autocomplete_response.get("predictions", [])
+    suggestions = [prediction["description"] for prediction in predictions]
 
-def get_events_from_api(coordinates):
-    if coordinates is None:
-        return []  # Return empty list if coordinates are not available
-    lat, lng = coordinates
-    url = f"https://www.eventbriteapi.com/v3/events/search/?location.latitude={lat}&location.longitude={lng}&token={EVENTBRITE_API_KEY}"
-    response = requests.get(url)
-    data = response.json()
-    try:
-        events = [
-            {
-                "name": event["name"]["text"],
-                "description": event["description"]["text"],
-                "date": event["start"]["local"],
-                "location": event["venue"]["address"]["localized_address_display"],
-            }
-            for event in data.get("events", [])
-        ]
-        return events
-    except KeyError:
-        # Handle cases where API response does not contain events or there's an error
-        return []
-
-
-def apply_filters(events, form_data):
-    # Implement filtering logic here if needed
-    return events
+    return jsonify(suggestions=suggestions)
 
 
 if __name__ == "__main__":

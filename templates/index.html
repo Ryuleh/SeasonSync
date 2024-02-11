@@ -12,35 +12,47 @@
       rel="stylesheet"
       href="{{ url_for('static', filename='color.css') }}"
     />
+    <style>
+      /* Your existing CSS styles here */
+
+      /* Additional styles for autofill suggestions */
+      #cityList {
+        display: none;
+      }
+
+      .suggestion-item {
+        cursor: pointer;
+      }
+    </style>
   </head>
   <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <a id="season" class="navbar-brand" href="/">SeasonSync</a>
-      <ul class="navbar-nav mr-auto">
-        <li class="nav-item">
-          <a class="nav-link" id="spring" href="/events?season=spring"
-            >Spring</a
-          >
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" id="summer" href="/events?season=summer"
-            >Summer</a
-          >
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" id="fall" href="/events?season=fall">Fall</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" id="winter" href="/events?season=winter"
-            >Winter</a
-          >
-        </li>
-      </ul>
+      <a class="navbar-brand" href="/">Event Marketplace</a>
     </nav>
 
     <div class="container mt-5">
       <h1>Welcome to SeasonSync Marketplace!</h1>
       <p><mark>🌻☀️🍁❄️Find events near you based on season.🌻☀️🍁❄️</mark></p>
+      <img
+        src="{{ url_for('static', filename='sun.jpg') }}"
+        alt="Sun"
+        class="sun-image"
+      />
+      <img
+        src="{{ url_for('static', filename='snow.webp') }}"
+        alt="Snow"
+        class="snow-image"
+      />
+      <img
+        src="{{ url_for('static', filename='spring.jpg') }}"
+        alt="Spring"
+        class="spring-image"
+      />
+      <img
+        src="{{ url_for('static', filename='fall.jpg') }}"
+        alt="Fall"
+        class="fall-image"
+      />
       <form action="/events" method="POST">
         <div class="form-group">
           <label for="city">Enter your city:</label>
@@ -56,38 +68,55 @@
             <!-- City suggestions will be populated here -->
           </datalist>
         </div>
+        <div class="form-group">
+          <label for="price">Price:</label>
+          <select id="price" name="price" class="form-control">
+            <option value="">Any</option>
+            <option value="free">Free</option>
+            <option value="paid">Paid</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="duration">Duration:</label>
+          <select id="duration" name="duration" class="form-control">
+            <option value="">Any</option>
+            <option value="1h">1 Hour</option>
+            <option value="1d">1 Day</option>
+          </select>
+        </div>
         <button type="submit" class="btn btn-primary">Search</button>
       </form>
     </div>
 
+    <!-- Google Maps API script -->
+    <script
+      async
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDJ62yzREkfbxwiexRMlKeOpbsGz5dx56o&callback=initMap&libraries=maps,marker&v=beta"
+    ></script>
+
     <script>
-      // JavaScript to fetch city suggestions from the OpenCage API
-      const cityInput = document.getElementById("city");
-      const cityList = document.getElementById("cityList");
+      // Function to handle autofill suggestions
+      function autocomplete() {
+        var input = document.getElementById("city");
+        var datalist = document.getElementById("cityList");
 
-      cityInput.addEventListener("input", function () {
-        const inputValue = this.value.trim();
-        if (inputValue === "") {
-          cityList.innerHTML = "";
-          return;
-        }
+        input.addEventListener("input", function () {
+          var query = input.value;
 
-        fetch(
-          `https://api.opencagedata.com/geocode/v1/json?q=${inputValue}&key=3a2e2407966344f4bd35adc2253b99da`
-        )
-          .then((response) => response.json())
-          .then((data) => {
-            cityList.innerHTML = "";
-            data.results.forEach((result) => {
-              const option = document.createElement("option");
-              option.value = result.formatted;
-              cityList.appendChild(option);
+          fetch(`/autocomplete?query=${query}`)
+            .then((response) => response.json())
+            .then((data) => {
+              datalist.innerHTML = "";
+              data.suggestions.forEach((suggestion) => {
+                var option = document.createElement("option");
+                option.value = suggestion;
+                datalist.appendChild(option);
+              });
             });
-          })
-          .catch((error) => {
-            console.error("Error fetching city suggestions:", error);
-          });
-      });
+        });
+      }
+
+      autocomplete();
     </script>
   </body>
 </html>
